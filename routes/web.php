@@ -12,7 +12,7 @@ Route::prefix('auth')->group(function () {
     Route::post('login', LoginController::class)->name('login');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('me', MeController::class)->name('me');
 
     Route::prefix('collections')->group(function () {
