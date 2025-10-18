@@ -30,7 +30,7 @@ final class GeminiWardrobeService
     public function processImage(UploadedFile $file): array
     {
         $prompt = <<<'PROMPT'
-You remove the background from the provided garment photo and analyse the clothing item.
+Remove the current background and put the product on a clean white surface with a soft shadow.
 Respond with two parts:
 1. A JSON object describing the garment with the schema:
 {

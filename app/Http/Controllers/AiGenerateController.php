@@ -53,7 +53,7 @@ final class AiGenerateController extends Controller
             'success' => true,
             'message' => 'Outfit collage generated successfully.',
             'data' => [
-                'selected_clothes' => $clothes->pluck('id')->values()->all(),
+                'clothes' => $clothes->map->toArray()->all(),
                 'image_path' => $collage['image_path'],
                 'image_url' => $collage['image_url'],
             ],

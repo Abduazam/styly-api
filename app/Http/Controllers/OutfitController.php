@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Clothe\Clothe;
 use App\Models\Outfit\Outfit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -131,5 +132,23 @@ final class OutfitController extends Controller
                 'outfit_id' => $outfit->id,
             ],
         ]);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $outfit = Outfit::query()->where('id', '=', $id)->first();
+
+        if ($outfit) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Outfit retrieved successfully.',
+                'data' => $outfit->toArray(),
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Outfit not found.',
+            ]);
+        }
     }
 }

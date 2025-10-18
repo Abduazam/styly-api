@@ -30,6 +30,7 @@ Route::middleware('auth')->prefix('api')->group(function () {
         Route::prefix('outfits')->group(function () {
             Route::get('/', [OutfitController::class, 'index'])->name('outfits');
             Route::post('store', [OutfitController::class, 'store'])->name('outfits.store');
+            Route::get('{id}', [OutfitController::class, 'show'])->name('outfits.show');
             Route::delete('{outfit}', [OutfitController::class, 'destroy'])->name('outfits.destroy');
         });
     });
