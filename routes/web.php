@@ -6,6 +6,7 @@ use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MatchingController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\OutfitController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => 'OK');
@@ -27,9 +28,9 @@ Route::middleware('auth')->prefix('api')->group(function () {
         });
 
         Route::prefix('outfits')->group(function () {
-            Route::get('/', fn () => 'Outfits')->name('outfits');
-            Route::post('store', fn () => 'Store')->name('outfits.store');
-            Route::delete('delete', fn () => 'Delete')->name('outfits.delete');
+            Route::get('/', [OutfitController::class, 'index'])->name('outfits');
+            Route::post('store', [OutfitController::class, 'store'])->name('outfits.store');
+            Route::delete('{outfit}', [OutfitController::class, 'destroy'])->name('outfits.destroy');
         });
     });
 
@@ -41,4 +42,4 @@ Route::middleware('auth')->prefix('api')->group(function () {
     });
 });
 
-Route::post('test', AiGenerateController::class)->name('test');
+Route::post('test', [ClothesController::class, 'store'])->name('test');
