@@ -12,7 +12,7 @@ Route::get('/', fn () => 'OK');
 
 Route::post('api/login', LoginController::class)->name('login');
 
-//\Illuminate\Support\Facades\Auth::loginUsingId(1);
+\Illuminate\Support\Facades\Auth::loginUsingId(1);
 Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('me', MeController::class)->name('me');
 
