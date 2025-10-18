@@ -4,7 +4,6 @@ use App\Http\Controllers\AiGenerateController;
 use App\Http\Controllers\ClothesController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\MatchingController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\OutfitController;
 use Illuminate\Support\Facades\Route;
@@ -13,7 +12,7 @@ Route::get('/', fn () => 'OK');
 
 Route::post('api/login', LoginController::class)->name('login');
 
-\Illuminate\Support\Facades\Auth::loginUsingId(1);
+//\Illuminate\Support\Facades\Auth::loginUsingId(1);
 Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('me', MeController::class)->name('me');
 
