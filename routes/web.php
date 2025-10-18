@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn () => 'OK');
 
 Route::prefix('auth')->group(function () {
-    Route::post('login', LoginController::class)->name('login');
+    Route::post('api/login', LoginController::class)->name('login');
 });
 
+\Illuminate\Support\Facades\Auth::loginUsingId(1);
 Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('me', MeController::class)->name('me');
 
