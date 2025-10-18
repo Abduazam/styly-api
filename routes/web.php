@@ -12,7 +12,6 @@ Route::prefix('auth')->group(function () {
     Route::post('login', LoginController::class)->name('login');
 });
 
-\Illuminate\Support\Facades\Auth::loginUsingId(1);
 Route::middleware('auth')->group(function () {
     Route::get('me', MeController::class)->name('me');
 
