@@ -12,7 +12,7 @@ final class DatabaseSeeder extends Seeder
 
     private function defaultUser(): User
     {
-        return User::factory()->create([
+        return User::query()->create([
             'name' => 'John Doe',
             'email' => 'johndoe@example.com',
             'password' => bcrypt('password'),

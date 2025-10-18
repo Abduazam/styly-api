@@ -2,6 +2,7 @@
 
 namespace App\Services\AI;
 
+use App\Models\Clothe\Clothe;
 use Gemini\Data\Blob;
 use Gemini\Data\Part;
 use Gemini\Enums\MimeType;
@@ -216,6 +217,13 @@ PROMPT;
 
         $path = str_replace('{id}', $this->user_id, self::$folder);
 
-        return sprintf($path . '/%s.%s', Str::uuid()->toString(), $extension);
+        return sprintf($path . '/%s.%s', $this->getImageID(), $extension);
+    }
+
+    private function getImageID(): string
+    {
+        $max = Clothe::query()->where(['user_id' => $this->user_id])->max('id');
+
+        return $max ? $max + 1 : 1;
     }
 }
