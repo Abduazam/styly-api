@@ -1,0 +1,33 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+final class DatabaseSeeder extends Seeder
+{
+    use WithoutModelEvents;
+
+    private function defaultUser(): User
+    {
+        return User::factory()->create([
+            'name' => 'John Doe',
+            'email' => 'johndoe@example.com',
+            'password' => bcrypt('password'),
+        ]);
+    }
+
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        $this->defaultUser();
+
+        $this->call([
+            ClothesSeeder::class
+        ]);
+    }
+}
