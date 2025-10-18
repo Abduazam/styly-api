@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiGenerateController;
 use App\Http\Controllers\ClothesController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\LoginController;
@@ -36,14 +37,8 @@ Route::middleware('auth')->prefix('api')->group(function () {
         Route::get('get-clothes', fn () => 'My Clothes in Wardrobe')->name('get-clothes');
         Route::get('get-occasion', fn () => 'Occasions')->name('get-occasion');
 
-        Route::post('generate', fn () => 'Generate')->name('generate');
-    });
-
-    Route::prefix('matching')->controller(MatchingController::class)->group(function () {
-        Route::post('find-matches', 'findMatches')->name('matching.find-matches');
-        Route::post('outfit-suggestions', 'getOutfitSuggestions')->name('matching.outfit-suggestions');
-        Route::post('styling-tips', 'getStylingTips')->name('matching.styling-tips');
+        Route::post('generate', AiGenerateController::class)->name('generate');
     });
 });
 
-Route::post('test', [ClothesController::class, 'store'])->name('test');
+Route::post('test', AiGenerateController::class)->name('test');
