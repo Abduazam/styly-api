@@ -6,6 +6,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 final class ClearCacheCommand extends Command
 {
@@ -14,7 +16,7 @@ final class ClearCacheCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'clear:all';
+    protected $signature = 'clear:all {--storage=* : Relative directories on the public disk to purge}';
 
     /**
      * The console command description.
@@ -28,6 +30,8 @@ final class ClearCacheCommand extends Command
      */
     public function handle(): void
     {
+        $this->clearPublicStorage();
+
         $this->call('cache:clear');
         $this->call('view:clear');
         $this->call('route:clear');
@@ -36,5 +40,14 @@ final class ClearCacheCommand extends Command
         Cache::store('redis')->flush();
 
         $this->info('All clears have been ran.');
+    }
+
+    protected function clearPublicStorage(): void
+    {
+        $disk = Storage::disk('public');
+
+        foreach ($disk->allDirectories() as $directory) {
+            Storage::disk('public')->deleteDirectory($directory);
+        }
     }
 }
