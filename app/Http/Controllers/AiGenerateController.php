@@ -37,7 +37,7 @@ final class AiGenerateController extends Controller
             $service = new GeminiMatcherService($user->id);
             $collage = $service->createCollage($clothes);
         } catch (Throwable $exception) {
-            Log::error('Failed to generate outfit collage', [
+            logger()->error('Failed to generate outfit collage', [
                 'user_id' => $user->id,
                 'selected_clothe_ids' => $selectedIds,
                 'error' => $exception->getMessage(),
