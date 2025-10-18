@@ -3,14 +3,13 @@
 use App\Http\Controllers\ClothesController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MatchingController;
 use App\Http\Controllers\MeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => 'OK');
 
-Route::prefix('auth')->group(function () {
-    Route::post('api/login', LoginController::class)->name('login');
-});
+Route::post('api/login', LoginController::class)->name('login');
 
 \Illuminate\Support\Facades\Auth::loginUsingId(1);
 Route::middleware('auth')->prefix('api')->group(function () {
@@ -38,6 +37,12 @@ Route::middleware('auth')->prefix('api')->group(function () {
         Route::get('get-occasion', fn () => 'Occasions')->name('get-occasion');
 
         Route::post('generate', fn () => 'Generate')->name('generate');
+    });
+
+    Route::prefix('matching')->controller(MatchingController::class)->group(function () {
+        Route::post('find-matches', 'findMatches')->name('matching.find-matches');
+        Route::post('outfit-suggestions', 'getOutfitSuggestions')->name('matching.outfit-suggestions');
+        Route::post('styling-tips', 'getStylingTips')->name('matching.styling-tips');
     });
 });
 

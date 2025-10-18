@@ -57,7 +57,7 @@ PROMPT;
             ->generateContent([
                 $prompt,
                 new Blob(
-                    mimeType: MimeType::IMAGE_JPEG,
+                    mimeType: $this->resolveImageMimeType($file),
                     data: base64_encode($file->getContent())
                 )
             ]);
@@ -225,5 +225,16 @@ PROMPT;
         $max = Clothe::query()->where(['user_id' => $this->user_id])->max('id');
 
         return $max ? $max + 1 : 1;
+    }
+
+    private function resolveImageMimeType(UploadedFile $file): MimeType
+    {
+        return match ($file->getMimeType()) {
+            'image/jpeg', 'image/jpg' => MimeType::IMAGE_JPEG,
+            'image/png' => MimeType::IMAGE_PNG,
+            'image/webp' => MimeType::IMAGE_WEBP,
+            'image/heic' => MimeType::IMAGE_HEIC,
+            'image/heif' => MimeType::IMAGE_HEIF,
+        };
     }
 }
