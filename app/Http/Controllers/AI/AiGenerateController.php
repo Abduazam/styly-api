@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\AI;
 
+use App\Http\Controllers\Controller;
 use App\Models\Clothe\Clothe;
 use App\Services\AI\GeminiMatcherService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 final class AiGenerateController extends Controller

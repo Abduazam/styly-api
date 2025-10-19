@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\AI;
 
 use App\Actions\Clothe\FindMatchingClothesAction;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -24,7 +25,7 @@ final class MatchingController extends Controller
 
         // Verify all selected clothes belong to the authenticated user
         $userClothes = $request->user()->clothes()->whereIn('id', $selectedClotheIds)->get();
-        
+
         if ($userClothes->count() !== count($selectedClotheIds)) {
             return response()->json([
                 'success' => false,
@@ -44,8 +45,8 @@ final class MatchingController extends Controller
 
         return response()->json([
             'success' => $result['success'],
-            'message' => $result['success'] 
-                ? 'Matching clothes found successfully' 
+            'message' => $result['success']
+                ? 'Matching clothes found successfully'
                 : ($result['error'] ?? 'Failed to find matching clothes'),
             'data' => $result,
         ], $statusCode);
@@ -69,7 +70,7 @@ final class MatchingController extends Controller
 
         // Verify all selected clothes belong to the authenticated user
         $userClothes = $request->user()->clothes()->whereIn('id', $selectedClotheIds)->get();
-        
+
         if ($userClothes->count() !== count($selectedClotheIds)) {
             return response()->json([
                 'success' => false,
@@ -90,9 +91,9 @@ final class MatchingController extends Controller
             $result['matching_results']['outfit_suggestions'] = array_filter(
                 $result['matching_results']['outfit_suggestions'],
                 function ($outfit) use ($occasion, $season) {
-                    $matchesOccasion = !$occasion || 
+                    $matchesOccasion = !$occasion ||
                         (isset($outfit['occasion']) && $outfit['occasion'] === $occasion);
-                    $matchesSeason = !$season || 
+                    $matchesSeason = !$season ||
                         (isset($outfit['season']) && $outfit['season'] === $season);
                     return $matchesOccasion && $matchesSeason;
                 }
@@ -103,8 +104,8 @@ final class MatchingController extends Controller
 
         return response()->json([
             'success' => $result['success'],
-            'message' => $result['success'] 
-                ? 'Outfit suggestions generated successfully' 
+            'message' => $result['success']
+                ? 'Outfit suggestions generated successfully'
                 : ($result['error'] ?? 'Failed to generate outfit suggestions'),
             'data' => $result,
         ], $statusCode);
@@ -124,7 +125,7 @@ final class MatchingController extends Controller
 
         // Verify all selected clothes belong to the authenticated user
         $userClothes = $request->user()->clothes()->whereIn('id', $selectedClotheIds)->get();
-        
+
         if ($userClothes->count() !== count($selectedClotheIds)) {
             return response()->json([
                 'success' => false,
@@ -144,8 +145,8 @@ final class MatchingController extends Controller
 
         return response()->json([
             'success' => $result['success'],
-            'message' => $result['success'] 
-                ? 'Styling tips generated successfully' 
+            'message' => $result['success']
+                ? 'Styling tips generated successfully'
                 : ($result['error'] ?? 'Failed to generate styling tips'),
             'data' => [
                 'selected_clothes' => $result['selected_clothes'] ?? [],

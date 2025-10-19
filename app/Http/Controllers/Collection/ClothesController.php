@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Collection;
 
 use App\Actions\Clothe\CreateClotheAction;
 use App\Actions\Clothe\DeleteClotheAction;
+use App\Http\Controllers\Controller;
 use App\Models\Clothe\Clothe;
 use App\Queries\Clothe\ClotheFindByIDQuery;
 use Illuminate\Http\JsonResponse;

@@ -27,7 +27,8 @@ final class DatabaseSeeder extends Seeder
         $this->defaultUser();
 
         $this->call([
-            ClothesSeeder::class
+            ClothesSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

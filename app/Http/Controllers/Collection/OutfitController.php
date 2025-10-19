@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Collection;
 
-use App\Models\Clothe\Clothe;
+use App\Http\Controllers\Controller;
 use App\Models\Outfit\Outfit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

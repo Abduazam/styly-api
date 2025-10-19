@@ -4,6 +4,7 @@ namespace App\Models\User\Traits;
 
 use App\Models\Clothe\Clothe;
 use App\Models\Outfit\Outfit;
+use App\Models\Wear\Wear;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait HasRelations
@@ -16,5 +17,10 @@ trait HasRelations
     public function outfits(): HasMany
     {
         return $this->hasMany(Outfit::class, 'user_id', 'id');
+    }
+
+    public function wears(): HasMany
+    {
+        return $this->hasMany(Wear::class, 'user_id', 'id');
     }
 }
