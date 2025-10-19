@@ -4,7 +4,7 @@ namespace App\Actions\Clothe;
 
 use App\Models\Clothe\Clothe;
 use App\Queries\Clothe\ClotheFindByUserQuery;
-use App\Services\AI\GeminiMatchingService;
+use App\Services\GeminiMatchingService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -27,14 +27,14 @@ final class FindMatchingClothesAction
         try {
             // Get selected clothes
             $selectedClothes = $this->clotheQuery->queryByIds($this->userId, $this->selectedClotheIds);
-            
+
             if ($selectedClothes->isEmpty()) {
                 return $this->createEmptyResponse('No selected clothes found.');
             }
 
             // Get available clothes (excluding selected ones)
             $availableClothes = $this->clotheQuery->query($this->userId, $this->selectedClotheIds);
-            
+
             if ($availableClothes->isEmpty()) {
                 return $this->createEmptyResponse('No other clothes available for matching.');
             }

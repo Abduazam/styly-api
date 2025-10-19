@@ -2,27 +2,21 @@
 
 namespace App\Services\AI;
 
+use App\Contracts\Abstracts\AbstractGeminiService;
 use App\Models\Clothe\Clothe;
 use Gemini\Data\Blob;
 use Gemini\Enums\MimeType;
 use Gemini\Laravel\Facades\Gemini;
-use Gemini\Responses\GenerativeModel\GenerateContentResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use RuntimeException;
 
-final class GeminiMatcherService
+final class GeminiMatcherService extends AbstractGeminiService
 {
-    protected static string $model = 'gemini-2.5-flash-image';
-    protected static string $folder = 'matching/{id}';
-
-    public function __construct(protected int $userId)
-    {
-    }
+    protected static string $folderTemplate = 'matching/{id}';
 
     /**
-     * Generate a flat lay collage for the provided clothes.
+     * Generate a flat lay college for the provided clothes.
      *
      * @return array{image_path: string, image_url: string}
      */
@@ -45,18 +39,15 @@ PROMPT;
 
         $parts = array_merge([$prompt], $imageBlobs);
 
-        $response = Gemini::generativeModel(model: self::$model)
+        $response = Gemini::generativeModel(model: $this->getModel())
             ->generateContent($parts);
 
-        $inlineBlob = $this->extractInlineBlob($response);
-        $imageBinary = base64_decode($inlineBlob->data, true);
-
-        if ($imageBinary === false) {
-            throw new RuntimeException('Gemini returned invalid image data.');
-        }
+        $inlineBlob = $this->inlineBlobOrFail($response);
+        $imageBinary = $this->decodeBase64Image($inlineBlob->data);
 
         $mimeType = $inlineBlob->mimeType?->value ?? MimeType::IMAGE_PNG->value;
-        $path = $this->storeImage($imageBinary, $mimeType);
+        $extension = $this->resolveExtensionFromMime($mimeType, 'png');
+        $path = $this->storePublicImage($imageBinary, $extension, 'Failed to store Gemini collage to disk.');
 
         return [
             'image_path' => $path,
@@ -122,37 +113,4 @@ PROMPT;
         return MimeType::IMAGE_PNG;
     }
 
-    protected function extractInlineBlob(GenerateContentResponse $response): Blob
-    {
-        foreach ($response->parts() as $part) {
-            if ($part->inlineData) {
-                return $part->inlineData;
-            }
-        }
-
-        throw new RuntimeException('Gemini response does not contain inline image data.');
-    }
-
-    protected function storeImage(string $binary, string $mimeType): string
-    {
-        $extension = $this->resolveExtensionFromMime($mimeType);
-        $folder = str_replace('{id}', (string) $this->userId, self::$folder);
-
-        $path = sprintf($folder . '/%s.%s', Str::uuid()->toString(), $extension);
-
-        if (! Storage::disk('public')->put($path, $binary)) {
-            throw new RuntimeException('Failed to store Gemini collage to disk.');
-        }
-
-        return $path;
-    }
-
-    protected function resolveExtensionFromMime(string $mimeType): string
-    {
-        return match ($mimeType) {
-            MimeType::IMAGE_JPEG->value => 'jpg',
-            MimeType::IMAGE_WEBP->value => 'webp',
-            default => 'png',
-        };
-    }
 }

@@ -1,31 +1,29 @@
 <?php
 
 use App\Models\Clothe\Clothe;
-use App\Services\AI\GeminiMatchingService;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Storage;
+use App\Services\GeminiMatchingService;
 
 it('can be instantiated with user id', function () {
     $service = new GeminiMatchingService(1);
-    
+
     expect($service)->toBeInstanceOf(GeminiMatchingService::class);
 });
 
 it('returns empty array when no selected clothes provided', function () {
     $service = new GeminiMatchingService(1);
-    
+
     $result = $service->findMatchingClothes(
         collect([]),
         collect([Clothe::factory()->make()])
     );
-    
+
     expect($result)->toBeArray();
     expect($result)->toBeEmpty();
 });
 
 it('prepares clothes data correctly', function () {
     $service = new GeminiMatchingService(1);
-    
+
     $clothes = collect([
         Clothe::factory()->make([
             'id' => 1,
@@ -38,13 +36,13 @@ it('prepares clothes data correctly', function () {
             'metadata' => ['fit' => 'regular'],
         ])
     ]);
-    
+
     $reflection = new ReflectionClass($service);
     $method = $reflection->getMethod('prepareClothesData');
     $method->setAccessible(true);
-    
+
     $result = $method->invoke($service, $clothes);
-    
+
     expect($result)->toBeArray();
     expect($result[0])->toHaveKeys(['id', 'label', 'category', 'occasion', 'season', 'color_palette', 'ai_summary', 'metadata']);
     expect($result[0]['id'])->toBe(1);
@@ -53,7 +51,7 @@ it('prepares clothes data correctly', function () {
 
 it('builds matching prompt correctly', function () {
     $service = new GeminiMatchingService(1);
-    
+
     $selectedClothes = [
         [
             'id' => 1,
@@ -62,7 +60,7 @@ it('builds matching prompt correctly', function () {
             'occasion' => 'casual',
         ]
     ];
-    
+
     $availableClothes = [
         [
             'id' => 2,
@@ -71,13 +69,13 @@ it('builds matching prompt correctly', function () {
             'occasion' => 'casual',
         ]
     ];
-    
+
     $reflection = new ReflectionClass($service);
     $method = $reflection->getMethod('buildMatchingPrompt');
     $method->setAccessible(true);
-    
+
     $result = $method->invoke($service, $selectedClothes, $availableClothes);
-    
+
     expect($result)->toBeString();
     expect($result)->toContain('SELECTED CLOTHES');
     expect($result)->toContain('AVAILABLE CLOTHES');
@@ -87,7 +85,7 @@ it('builds matching prompt correctly', function () {
 
 it('normalizes matching results correctly', function () {
     $service = new GeminiMatchingService(1);
-    
+
     $data = [
         'matches' => [
             ['clothe_id' => 1, 'match_score' => 0.8, 'reasoning' => 'Good match'],
@@ -97,13 +95,13 @@ it('normalizes matching results correctly', function () {
         ],
         'styling_tips' => ['Tip 1', 'Tip 2'],
     ];
-    
+
     $reflection = new ReflectionClass($service);
     $method = $reflection->getMethod('normalizeMatchingResults');
     $method->setAccessible(true);
-    
+
     $result = $method->invoke($service, $data);
-    
+
     expect($result)->toBeArray();
     expect($result['matches'])->toHaveCount(1);
     expect($result['outfit_suggestions'])->toHaveCount(1);
@@ -112,13 +110,13 @@ it('normalizes matching results correctly', function () {
 
 it('returns default results when normalization fails', function () {
     $service = new GeminiMatchingService(1);
-    
+
     $reflection = new ReflectionClass($service);
     $method = $reflection->getMethod('defaultMatchingResults');
     $method->setAccessible(true);
-    
+
     $result = $method->invoke($service);
-    
+
     expect($result)->toBeArray();
     expect($result['matches'])->toBeEmpty();
     expect($result['outfit_suggestions'])->toBeEmpty();

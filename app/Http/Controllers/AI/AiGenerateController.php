@@ -16,6 +16,8 @@ final class AiGenerateController extends Controller
         $validated = $request->validate([
             'selected_clothes' => ['required', 'array', 'min:1'],
             'selected_clothes.*' => ['required', 'integer', 'exists:clothes,id'],
+            'occasion' => ['nullable', 'string'],
+            'look' => ['nullable', 'string'],
         ]);
 
         $selectedIds = array_values($validated['selected_clothes']);

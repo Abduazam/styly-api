@@ -2,27 +2,17 @@
 
 namespace App\Services\AI;
 
+use App\Contracts\Abstracts\AbstractGeminiService;
 use App\Models\Clothe\Clothe;
 use Gemini\Data\Blob;
-use Gemini\Data\Part;
 use Gemini\Enums\MimeType;
 use Gemini\Laravel\Facades\Gemini;
 use Gemini\Responses\GenerativeModel\GenerateContentResponse;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use JsonException;
-use RuntimeException;
 
-final class GeminiWardrobeService
+final class GeminiWardrobeService extends AbstractGeminiService
 {
-    protected static string $model = 'gemini-2.5-flash-image';
-    protected static string $folder = 'wardrobe/{id}';
-
-    public function __construct(protected int $user_id)
-    {
-
-    }
+    protected static string $folderTemplate = 'wardrobe/{id}';
 
     /**
      * Remove the background from an uploaded wardrobe image using Gemini image editing.
@@ -31,6 +21,7 @@ final class GeminiWardrobeService
     {
         $prompt = <<<'PROMPT'
 Remove the current background and put the product on a clean white surface with a soft shadow.
+
 Respond with two parts:
 1. A JSON object describing the garment with the schema:
 {
@@ -49,11 +40,13 @@ Respond with two parts:
     "care": "care recommendation or null"
   }
 }
+
 Ensure color codes are valid hex strings and omit unavailable values using null.
+
 2. The edited product image on a clean white background with a soft shadow as inline binary data.
 PROMPT;
 
-        $result = Gemini::generativeModel(model: self::$model)
+        $result = Gemini::generativeModel(model: $this->getModel())
             ->generateContent([
                 $prompt,
                 new Blob(
@@ -63,36 +56,16 @@ PROMPT;
             ]);
 
         $structured = $this->extractStructuredData($result);
-        $inlineBlob = $this->extractInlineBlob($result);
+        $inlineBlob = $this->inlineBlobOrFail($result);
+        $imageBinary = $this->decodeBase64Image($inlineBlob->data);
 
-        $imageBinary = base64_decode($inlineBlob->data, true);
-
-        if ($imageBinary === false) {
-            throw new RuntimeException('Gemini returned invalid image data.');
-        }
-
-        $path = $this->buildStoragePath($inlineBlob->mimeType->value);
-
-        if (! Storage::disk('public')->put($path, $imageBinary)) {
-            throw new RuntimeException('Failed to store Gemini result to the public disk.');
-        }
+        $mimeType = $inlineBlob->mimeType?->value ?? MimeType::IMAGE_PNG->value;
+        $extension = $this->resolveExtensionFromMime($mimeType, 'png');
+        $path = $this->storePublicImage($imageBinary, $extension, 'Failed to store Gemini result to the public disk.');
 
         $structured['image_path'] = $path;
 
         return $structured;
-    }
-
-    protected function extractInlineBlob(GenerateContentResponse $response): Blob
-    {
-        foreach ($response->candidates as $candidate) {
-            foreach ($candidate->content->parts as $part) {
-                if ($part->inlineData !== null) {
-                    return $part->inlineData;
-                }
-            }
-        }
-
-        throw new RuntimeException('Gemini response does not contain inline image data.');
     }
 
     protected function extractStructuredData(GenerateContentResponse $response): array
@@ -200,29 +173,9 @@ PROMPT;
         ];
     }
 
-    protected function buildStoragePath(string $mimeType): string
-    {
-        $extension = match ($mimeType) {
-            'image/jpeg', 'image/jpg' => 'jpg',
-            'image/png' => 'png',
-            'image/webp' => 'webp',
-            default => Str::after($mimeType, '/'),
-        };
-
-        $extension = $extension === 'jpeg' ? 'jpg' : $extension;
-
-        if ($extension === '' || str_contains($extension, '/')) {
-            $extension = 'bin';
-        }
-
-        $path = str_replace('{id}', $this->user_id, self::$folder);
-
-        return sprintf($path . '/%s.%s', $this->getImageID(), $extension);
-    }
-
     private function getImageID(): string
     {
-        $max = Clothe::query()->where(['user_id' => $this->user_id])->max('id');
+        $max = Clothe::query()->where(['user_id' => $this->userId])->max('id');
 
         return $max ? $max + 1 : 1;
     }
@@ -235,6 +188,21 @@ PROMPT;
             'image/webp' => MimeType::IMAGE_WEBP,
             'image/heic' => MimeType::IMAGE_HEIC,
             'image/heif' => MimeType::IMAGE_HEIF,
+            default => MimeType::IMAGE_PNG,
         };
+    }
+
+    protected function generateFilename(string $extension): string
+    {
+        return sprintf('%s.%s', $this->nextImageSequence(), $extension);
+    }
+
+    private function nextImageSequence(): int
+    {
+        $max = Clothe::query()
+            ->where('user_id', $this->userId)
+            ->max('id');
+
+        return $max ? $max + 1 : 1;
     }
 }

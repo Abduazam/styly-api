@@ -27,8 +27,13 @@ final class DatabaseSeeder extends Seeder
         $this->defaultUser();
 
         $this->call([
-            ClothesSeeder::class,
             ProductSeeder::class,
         ]);
+
+        if (app()->environment('local')) {
+            $this->call([
+                ClothesSeeder::class,
+            ]);
+        }
     }
 }
