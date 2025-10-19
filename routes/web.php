@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AI\AiGenerateController;
+use App\Http\Controllers\AI\WearOnController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\MeController;
 use App\Http\Controllers\Collection\ClothesController;
@@ -45,7 +46,7 @@ Route::middleware('auth')->prefix('api')->group(function () {
 
     Route::prefix('ai')->group(function () {
         Route::post('generate', AiGenerateController::class)->name('generate');
-        Route::post('wear-me', fn () => 'Wear Me')->name('wear-me');
+        Route::post('wear-me', WearOnController::class)->name('wear-me');
     });
 
     Route::prefix('market')->group(function () {
